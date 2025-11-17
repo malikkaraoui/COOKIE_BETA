@@ -1,20 +1,27 @@
 // On importe les hooks React dont on a besoin
+
+// axis: 'x' → on utilise e.clientX (largeur, sidebar)
+// axis: 'y' → on utilise e.clientY (hauteur, topbar)
+
 import { useState, useEffect } from 'react'
 
-export function useResizableSidebar({
-  min = 200,
-  max = 420,
-  initial = 260,
+export function useResizablePanel({
+  min = 80,
+  max = 160,
+  initial = 100,
+  axis = 'y', // 'y' = hauteur
 } = {}) {
-  const [width, setWidth] = useState(initial)
+  const [size, setSize] = useState(initial)
   const [isResizing, setIsResizing] = useState(false)
 
   useEffect(() => {
     function handleMouseMove(e) {
       if (!isResizing) return
 
-      const newWidth = Math.min(max, Math.max(min, e.clientX))
-      setWidth(newWidth)
+      const position = axis === 'x' ? e.clientX : e.clientY
+
+      const newSize = Math.min(max, Math.max(min, position))
+      setSize(newSize)
     }
 
     function handleMouseUp() {
@@ -28,12 +35,12 @@ export function useResizableSidebar({
       window.removeEventListener('mousemove', handleMouseMove)
       window.removeEventListener('mouseup', handleMouseUp)
     }
-  }, [isResizing, min, max])
+  }, [isResizing, min, max, axis])
 
   const startResizing = () => setIsResizing(true)
 
   return {
-    width,
+    size,
     isResizing,
     startResizing,
   }

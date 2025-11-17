@@ -1,10 +1,11 @@
-import { useResizableSidebar } from '../hooks/useResizableSidebar'
+import { useResizablePanel } from '../hooks/useResizablePanel'
 
 export default function Sidebar() {
-  const { width, isResizing, startResizing } = useResizableSidebar({
-    min: 200,
+  const { size: width, isResizing, startResizing } = useResizablePanel({
+    min: 110,
     max: 420,
-    initial: 260,
+    initial: 200,
+    axis: 'x', // on redimensionne sur l’axe horizontal
   })
 
   return (

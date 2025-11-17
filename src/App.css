@@ -21,7 +21,6 @@ body {
 }
 
 .topbar {
-  height: 80px;
   background: #6f5a72;
   color: #ffffff;
   display: flex;
@@ -29,6 +28,19 @@ body {
   justify-content: center;
   font-weight: 600;
   letter-spacing: 0.08em;
+}
+
+/* poignée horizontale sous la topbar */
+.topbar-resizer {
+  height: 6px;
+  cursor: row-resize;
+  background: rgba(0, 0, 0, 0.05);
+  transition: background 0.15s ease;
+}
+
+.topbar-resizer:hover,
+.topbar-resizer.is-resizing {
+  background: rgba(0, 0, 0, 0.18);
 }
 
 .layout {
