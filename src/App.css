@@ -1,42 +1,61 @@
+/* App.css */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+  height: 100%;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+/* conteneur global */
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+/* TAP BAR en haut FIXE */
+.topbar {
+  height: 160px;                    /* ajustement de la largueur manuellement */
+  background: #6f5a72;             /* violet/gris */
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  letter-spacing: 0.08em;
 }
 
-.card {
-  padding: 2em;
+/* zone du dessous (nav + page) */
+.layout {
+  flex: 1;
+  display: flex;
 }
 
-.read-the-docs {
-  color: #888;
+/* colonne gauche : NAVIGATION FIXE RAPIDE */
+.sidebar {
+  width: 200px;                    /* ajustement de la largeur fixe de la nav */
+  background: #e7cfcf;             /* rose pâle */
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* zone droite : PAGE */
+.page {
+  flex: 1;
+  background: #e4b85a;             /* jaune/orangé */
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }

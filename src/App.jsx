@@ -1,11 +1,24 @@
-import './index.css' 
+// App.jsx
+import './App.css'
 
 export default function App() {
   return (
-        <div className="min-h-screen w-full flex items-center justify-center bg-slate-900">
-      <h1 className="text-3xl font-bold text-emerald-400">
-        🍪 COOKIE arrive bientôt 🧑🏼‍🍳
-      </h1>
-        </div>
+    <div className="app">
+      {/* TAP BAR */}
+      <header className="topbar">
+        TAP BAR
+      </header>
+
+      {/* NAV + PAGE */}
+      <div className="layout">
+        <nav className="sidebar">
+          NAVIGATION
+        </nav>
+
+        <main className="page">
+          PAGE
+        </main>
+      </div>
+    </div>
   )
 }
