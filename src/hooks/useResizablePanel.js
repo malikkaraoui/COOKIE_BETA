@@ -7,9 +7,9 @@ import { useState, useEffect } from 'react'
 
 export function useResizablePanel({
   min = 80,
-  max = 160,
+  max = 200,
   initial = 100,
-  axis = 'y', // 'y' = hauteur
+  axis = 'y', // 'x' = largeur, 'y' = hauteur
 } = {}) {
   const [size, setSize] = useState(initial)
   const [isResizing, setIsResizing] = useState(false)
