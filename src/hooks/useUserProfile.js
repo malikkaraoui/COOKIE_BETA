@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from './useAuth'
 import { 
-  createOrUpdateUserProfile, 
   getUserProfile, 
   updateUserProfile 
 } from '../lib/firestore/userService'
@@ -31,10 +30,8 @@ export function useUserProfile() {
       try {
         setError(null)
         
-        // Créer ou mettre à jour le profil (lastLoginAt, photoURL)
-        await createOrUpdateUserProfile(user)
-        
-        // Récupérer le profil complet depuis Firestore
+        // OPTIMISATION : Récupérer uniquement le profil depuis Firestore
+        // La création/mise à jour se fait automatiquement lors du login via AuthContext
         const userProfile = await getUserProfile(user.uid)
         
         if (isMounted) {

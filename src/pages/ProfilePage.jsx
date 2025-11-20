@@ -14,7 +14,7 @@ export default function ProfilePage() {
   const [message, setMessage] = useState('')
 
   // Initialiser la date de naissance quand le profil est chargé
-  useState(() => {
+  useEffect(() => {
     if (profile?.birthDate) {
       // Convertir le timestamp Firestore en format YYYY-MM-DD pour l'input
       const date = profile.birthDate.toDate ? profile.birthDate.toDate() : new Date(profile.birthDate)
@@ -34,8 +34,8 @@ export default function ProfilePage() {
       await updateProfile({
         birthDate: new Date(birthDate),
       })
-      setMessage('Profil mis à jour avec succès !')
-      setTimeout(() => setMessage(''), 3000)
+      setMessage('✓ Profil enregistré avec succès !')
+      setTimeout(() => setMessage(''), 4000)
     } catch (err) {
       console.error('Erreur mise à jour profil:', err)
       setMessage('Erreur lors de la mise à jour du profil')
@@ -69,16 +69,10 @@ export default function ProfilePage() {
 
         <div className="profile-header">
           <img 
-            src={user.photoURL} 
+            src={profile?.photoURL || user.photoURL} 
             alt={profile?.firstName || 'Profil'} 
             className="profile-avatar-large"
           />
-          <div className="profile-info">
-            <h2 className="profile-name">
-              {profile?.firstName} {profile?.lastName}
-            </h2>
-            <p className="profile-email">{user.email}</p>
-          </div>
         </div>
 
         <form className="profile-form" onSubmit={handleSave}>

@@ -42,10 +42,12 @@ export async function createOrUpdateUserProfile(user) {
     const userSnap = await getDoc(userRef)
     
     if (userSnap.exists()) {
-      // Mise à jour : seulement lastLoginAt et photoURL (peut changer)
+      // Mise à jour : lastLoginAt, photoURL ET nom/prénom (au cas où changés sur Google)
       await updateDoc(userRef, {
-        lastLoginAt: serverTimestamp(),
+        firstName: extractFirstName(user.displayName),
+        lastName: extractLastName(user.displayName),
         photoURL: user.photoURL || null,
+        lastLoginAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       })
     } else {

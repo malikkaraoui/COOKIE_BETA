@@ -3,6 +3,7 @@
 import { createContext, useContext, useState, useEffect } from 'react'
 import { onAuthStateChanged } from 'firebase/auth'
 import { auth } from '../config/firebase'
+import { createOrUpdateUserProfile } from '../lib/firestore/userService'
 
 const AuthContext = createContext()
 
@@ -13,7 +14,16 @@ export function AuthProvider({ children }) {
   // Écoute les changements d'état d'authentification Firebase
   // S'exécute une seule fois au montage du composant
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      if (currentUser) {
+        // Créer/mettre à jour le profil Firestore lors de la connexion
+        try {
+          await createOrUpdateUserProfile(currentUser)
+        } catch (error) {
+          console.error('Erreur lors de la sync du profil:', error)
+        }
+      }
+      
       setUser(currentUser)
       setLoading(false)
     })
