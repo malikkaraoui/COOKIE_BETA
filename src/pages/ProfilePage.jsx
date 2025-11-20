@@ -1,9 +1,9 @@
 // Page Profil utilisateur
-// Affiche et permet de modifier les informations du profil
+// Affiche les informations du profil et permet de saisir la date de naissance
 import { useState } from 'react'
 import { useAuth } from '../hooks/useAuth'
 import { useUserProfile } from '../hooks/useUserProfile'
-import { calculateAge } from '../lib/firestore/userService'
+import { calculateAge } from '../lib/database/userService'
 import './ProfilePage.css'
 
 export default function ProfilePage() {
@@ -13,20 +13,11 @@ export default function ProfilePage() {
   const [birthDate, setBirthDate] = useState('')
   const [message, setMessage] = useState('')
 
-  // Initialiser la date de naissance quand le profil est chargé
-  useEffect(() => {
-    if (profile?.birthDate) {
-      // Convertir le timestamp Firestore en format YYYY-MM-DD pour l'input
-      const date = profile.birthDate.toDate ? profile.birthDate.toDate() : new Date(profile.birthDate)
-      setBirthDate(date.toISOString().split('T')[0])
-    }
-  }, [profile])
-
   const handleSave = async (e) => {
     e.preventDefault()
     
     if (!birthDate) {
-      setMessage('Veuillez sélectionner une date de naissance')
+      setMessage('❌ Veuillez sélectionner une date de naissance')
       return
     }
 
@@ -34,11 +25,11 @@ export default function ProfilePage() {
       await updateProfile({
         birthDate: new Date(birthDate),
       })
-      setMessage('✓ Profil enregistré avec succès !')
-      setTimeout(() => setMessage(''), 4000)
+      setMessage('✓ Date de naissance enregistrée !')
+      setTimeout(() => setMessage(''), 3000)
     } catch (err) {
       console.error('Erreur mise à jour profil:', err)
-      setMessage('Erreur lors de la mise à jour du profil')
+      setMessage(`❌ Erreur: ${err.code || err.message}`)
     }
   }
 
@@ -60,76 +51,62 @@ export default function ProfilePage() {
     )
   }
 
-  const age = profile?.birthDate ? calculateAge(profile.birthDate.toDate ? profile.birthDate.toDate() : profile.birthDate) : null
+  const hasBirthDate = profile?.birthDate
+  const age = hasBirthDate ? calculateAge(new Date(profile.birthDate)) : null
 
   return (
     <div className="profile-page">
       <div className="profile-container">
-        <h1 className="profile-title">Mon Profil</h1>
 
+        {/* Photo de profil + Nom/Prénom centrés */}
         <div className="profile-header">
           <img 
             src={profile?.photoURL || user.photoURL} 
             alt={profile?.firstName || 'Profil'} 
             className="profile-avatar-large"
           />
+          <h2 className="profile-name">{profile?.firstName} {profile?.lastName}</h2>
+          
+          {/* Si date de naissance existe : afficher l'âge */}
+          {hasBirthDate && age !== null && (
+            <p className="profile-age">{age} ans</p>
+          )}
         </div>
 
-        <form className="profile-form" onSubmit={handleSave}>
-          <div className="form-group">
-            <label htmlFor="firstName" className="form-label">Prénom</label>
-            <input 
-              id="firstName"
-              type="text" 
-              className="form-input" 
-              value={profile?.firstName || ''} 
-              disabled
-            />
-            <span className="form-hint">Importé depuis votre compte Google</span>
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="lastName" className="form-label">Nom</label>
-            <input 
-              id="lastName"
-              type="text" 
-              className="form-input" 
-              value={profile?.lastName || ''} 
-              disabled
-            />
-            <span className="form-hint">Importé depuis votre compte Google</span>
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="birthDate" className="form-label">
-              Date de naissance
-              {age !== null && <span className="age-display">({age} ans)</span>}
-            </label>
-            <input 
-              id="birthDate"
-              type="date" 
-              className="form-input" 
-              value={birthDate}
-              onChange={(e) => setBirthDate(e.target.value)}
-              max={new Date().toISOString().split('T')[0]} // Pas de date future
-            />
-            <span className="form-hint">Cette information reste privée</span>
-          </div>
-
-          {message && (
-            <div className={`form-message ${message.includes('succès') ? 'success' : 'error'}`}>
-              {message}
+        {/* Si PAS de date de naissance : afficher le formulaire */}
+        {!hasBirthDate && (
+          <form className="profile-form" onSubmit={handleSave}>
+            <div className="form-group">
+              <label htmlFor="birthDate" className="form-label">
+                Date de naissance
+              </label>
+              <input 
+                id="birthDate"
+                type="date" 
+                className="form-input" 
+                value={birthDate}
+                onChange={(e) => setBirthDate(e.target.value)}
+                max={new Date().toISOString().split('T')[0]}
+                required
+              />
+              <span className="form-hint">Cette information reste privée</span>
             </div>
-          )}
 
-          <button 
-            type="submit" 
-            className="form-button" 
-            disabled={updating}
-          >
-            {updating ? 'Enregistrement...' : 'Enregistrer'}
-          </button>
-        </form>
+            {message && (
+              <div className={`form-message ${message.includes('✓') ? 'success' : 'error'}`}>
+                {message}
+              </div>
+            )}
+
+            <button 
+              type="submit" 
+              className="form-button" 
+              disabled={updating}
+            >
+              {updating ? 'Enregistrement...' : 'Enregistrer'}
+            </button>
+          </form>
+        )}
       </div>
     </div>
   )

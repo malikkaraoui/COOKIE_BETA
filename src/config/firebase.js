@@ -2,11 +2,12 @@
 // Les clés sont stockées dans les variables d'environnement (.env)
 import { initializeApp } from 'firebase/app'
 import { getAuth, GoogleAuthProvider } from 'firebase/auth'
-import { getFirestore } from 'firebase/firestore'
+import { getDatabase } from 'firebase/database'
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  databaseURL: `https://${import.meta.env.VITE_FIREBASE_PROJECT_ID}-default-rtdb.europe-west1.firebasedatabase.app`,
   projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
   storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
@@ -18,5 +19,5 @@ const app = initializeApp(firebaseConfig)
 
 // Services Firebase exportés pour utilisation dans toute l'app
 export const auth = getAuth(app)
-export const db = getFirestore(app)
+export const db = getDatabase(app) // Realtime Database (plus simple que Firestore)
 export const googleProvider = new GoogleAuthProvider()

@@ -1,6 +1,6 @@
-// Service Firestore pour la gestion des utilisateurs
-// Architecture scalable avec Firebase Auth UID comme clé unique
-import { doc, getDoc, setDoc, updateDoc, serverTimestamp } from 'firebase/firestore'
+// Service Realtime Database pour la gestion des utilisateurs
+// Architecture simple avec Firebase Auth UID comme clé unique
+import { ref, get, set, update } from 'firebase/database'
 import { db } from '../../config/firebase'
 
 /**
@@ -24,7 +24,7 @@ export function extractLastName(displayName) {
 }
 
 /**
- * Crée ou met à jour le profil utilisateur dans Firestore
+ * Crée ou met à jour le profil utilisateur dans Realtime Database
  * Appelé automatiquement lors de la première connexion Google
  * 
  * @param {Object} user - Objet user de Firebase Auth
@@ -35,33 +35,34 @@ export async function createOrUpdateUserProfile(user) {
     throw new Error('User object is required with uid')
   }
 
-  const userRef = doc(db, 'users', user.uid)
+  const userRef = ref(db, `users/${user.uid}`)
   
   try {
     // Vérifier si le profil existe déjà
-    const userSnap = await getDoc(userRef)
+    const snapshot = await get(userRef)
+    const now = Date.now()
     
-    if (userSnap.exists()) {
+    if (snapshot.exists()) {
       // Mise à jour : lastLoginAt, photoURL ET nom/prénom (au cas où changés sur Google)
-      await updateDoc(userRef, {
+      await update(userRef, {
         firstName: extractFirstName(user.displayName),
         lastName: extractLastName(user.displayName),
         photoURL: user.photoURL || null,
-        lastLoginAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
+        lastLoginAt: now,
+        updatedAt: now,
       })
     } else {
       // Création : nouveau profil avec toutes les données de base
-      await setDoc(userRef, {
+      await set(userRef, {
         email: user.email || '',
         firstName: extractFirstName(user.displayName),
         lastName: extractLastName(user.displayName),
         photoURL: user.photoURL || null,
         birthDate: null, // À renseigner par l'utilisateur
         authProvider: 'google',
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-        lastLoginAt: serverTimestamp(),
+        createdAt: now,
+        updatedAt: now,
+        lastLoginAt: now,
         isActive: true,
       })
     }
@@ -72,7 +73,7 @@ export async function createOrUpdateUserProfile(user) {
 }
 
 /**
- * Récupère le profil utilisateur depuis Firestore
+ * Récupère le profil utilisateur depuis Realtime Database
  * 
  * @param {string} uid - Firebase Auth UID
  * @returns {Promise<Object|null>} - Données du profil ou null si non trouvé
@@ -82,15 +83,15 @@ export async function getUserProfile(uid) {
     throw new Error('UID is required')
   }
 
-  const userRef = doc(db, 'users', uid)
+  const userRef = ref(db, `users/${uid}`)
   
   try {
-    const userSnap = await getDoc(userRef)
+    const snapshot = await get(userRef)
     
-    if (userSnap.exists()) {
+    if (snapshot.exists()) {
       return {
         uid,
-        ...userSnap.data(),
+        ...snapshot.val(),
       }
     }
     
@@ -113,13 +114,19 @@ export async function updateUserProfile(uid, data) {
     throw new Error('UID is required')
   }
 
-  const userRef = doc(db, 'users', uid)
+  const userRef = ref(db, `users/${uid}`)
   
   try {
+    // Convertir Date en timestamp si présent
+    const processedData = { ...data }
+    if (processedData.birthDate instanceof Date) {
+      processedData.birthDate = processedData.birthDate.toISOString()
+    }
+    
     // Ajouter automatiquement le timestamp de mise à jour
-    await updateDoc(userRef, {
-      ...data,
-      updatedAt: serverTimestamp(),
+    await update(userRef, {
+      ...processedData,
+      updatedAt: Date.now(),
     })
   } catch (error) {
     console.error('Erreur lors de la mise à jour du profil:', error)

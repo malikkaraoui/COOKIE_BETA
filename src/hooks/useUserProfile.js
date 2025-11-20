@@ -1,11 +1,11 @@
-// Hook personnalisé pour gérer le profil utilisateur Firestore
+// Hook personnalisé pour gérer le profil utilisateur Realtime Database
 // Synchronise automatiquement le profil à la connexion et permet les mises à jour
 import { useState, useEffect } from 'react'
 import { useAuth } from './useAuth'
 import { 
   getUserProfile, 
   updateUserProfile 
-} from '../lib/firestore/userService'
+} from '../lib/database/userService'
 
 export function useUserProfile() {
   const { user, loading: authLoading } = useAuth()
@@ -14,7 +14,7 @@ export function useUserProfile() {
   const [error, setError] = useState(null)
   const [updating, setUpdating] = useState(false)
 
-  // Synchronise le profil Firestore quand l'utilisateur se connecte
+  // Synchronise le profil depuis la base de données quand l'utilisateur se connecte
   useEffect(() => {
     let isMounted = true
 
@@ -30,7 +30,7 @@ export function useUserProfile() {
       try {
         setError(null)
         
-        // OPTIMISATION : Récupérer uniquement le profil depuis Firestore
+        // OPTIMISATION : Récupérer uniquement le profil depuis la base
         // La création/mise à jour se fait automatiquement lors du login via AuthContext
         const userProfile = await getUserProfile(user.uid)
         
@@ -64,7 +64,7 @@ export function useUserProfile() {
       setUpdating(true)
       setError(null)
       
-      // Mise à jour dans Firestore
+      // Mise à jour dans la base de données
       await updateUserProfile(user.uid, data)
       
       // Recharger le profil pour refléter les changements
@@ -98,7 +98,7 @@ export function useUserProfile() {
   }
 
   return {
-    profile,           // Profil complet depuis Firestore
+    profile,           // Profil complet depuis la base de données
     loading,           // Chargement initial du profil
     error,             // Erreur éventuelle
     updating,          // Mise à jour en cours

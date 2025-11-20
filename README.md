@@ -1,4 +1,4 @@
-# 🍪 COOKIE
+# 🍪 COOKIE 🧑🏼‍🍳
 
 > **Plateforme de trading crypto moderne construite avec React, Firebase et l'API Hyperliquid**
 

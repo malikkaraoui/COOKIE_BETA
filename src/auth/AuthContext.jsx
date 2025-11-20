@@ -3,7 +3,7 @@
 import { createContext, useContext, useState, useEffect } from 'react'
 import { onAuthStateChanged } from 'firebase/auth'
 import { auth } from '../config/firebase'
-import { createOrUpdateUserProfile } from '../lib/firestore/userService'
+import { createOrUpdateUserProfile } from '../lib/database/userService'
 
 const AuthContext = createContext()
 
@@ -16,7 +16,7 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
-        // Créer/mettre à jour le profil Firestore lors de la connexion
+        // Créer/mettre à jour le profil Realtime Database lors de la connexion
         try {
           await createOrUpdateUserProfile(currentUser)
         } catch (error) {
