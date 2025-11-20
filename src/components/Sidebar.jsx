@@ -1,6 +1,8 @@
 import { Link, useLocation } from 'react-router-dom'
 import { useResizablePanel } from '../hooks/useResizablePanel'
 import { useNavigation } from '../context/NavigationContext'
+import ProfileButton from '../auth/ProfileButton'
+import LogoutButton from '../auth/LogoutButton'
 
 export default function Sidebar() {
   // gestion du redimensionnement horizontal
@@ -18,9 +20,8 @@ export default function Sidebar() {
   const { setActivePage } = useNavigation()
 
   const links = [
-    { to: '/page1', label: 'Page 1' },
-    { to: '/page2', label: 'Page 2' },
-    { to: '/page3', label: 'Page 3' },
+    { to: '/page1', label: 'Marmiton Communautaire' },
+    { to: '/page2', label: 'Ma cuisine' },
   ]
 
   return (
@@ -41,6 +42,10 @@ export default function Sidebar() {
               </Link>
             )
           })}
+          
+          <div className="sidebar-spacer" />
+          <ProfileButton />
+          <LogoutButton />
         </div>
       </nav>
 

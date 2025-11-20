@@ -1,5 +1,4 @@
 export const IS_TESTNET = true;
-
 export const WS_URL = IS_TESTNET
   ? "wss://api.hyperliquid-testnet.xyz/ws"
   : "wss://api.hyperliquid.xyz/ws";

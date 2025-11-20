@@ -1,0 +1,5 @@
+{
+  "accountAddress": "0x....",        // adresse du wallet principal (master)
+  "agentPrivateKey": "0x...",        // private key de l'API wallet
+  "isTestnet": true
+}

@@ -1,0 +1,132 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // ============================================
+    // HELPER FUNCTIONS
+    // ============================================
+    
+    // Vérifie si l'utilisateur est authentifié
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Vérifie si l'utilisateur est propriétaire de la ressource
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    // Vérifie que les champs requis sont présents lors de la création
+    function hasRequiredFields() {
+      return request.resource.data.keys().hasAll([
+        'email',
+        'firstName',
+        'lastName',
+        'authProvider',
+        'createdAt',
+        'updatedAt',
+        'isActive'
+      ]);
+    }
+    
+    // Vérifie qu'on ne modifie pas les champs immuables
+    function notChangingImmutableFields() {
+      return !request.resource.data.diff(resource.data).affectedKeys()
+        .hasAny(['email', 'authProvider', 'createdAt']);
+    }
+    
+    // ============================================
+    // COLLECTION: users
+    // ============================================
+    
+    match /users/{userId} {
+      // LECTURE: Tous les utilisateurs authentifiés peuvent lire les profils
+      // (pour afficher les noms dans les trades, etc.)
+      allow read: if isAuthenticated();
+      
+      // CRÉATION: Uniquement son propre profil avec les champs requis
+      allow create: if isOwner(userId) && hasRequiredFields();
+      
+      // MISE À JOUR: Uniquement son propre profil
+      // + Ne pas modifier email, authProvider, createdAt
+      allow update: if isOwner(userId) && notChangingImmutableFields();
+      
+      // SUPPRESSION: Interdite (utiliser soft delete avec isActive: false)
+      allow delete: if false;
+      
+      // ============================================
+      // SOUS-COLLECTIONS (futures)
+      // ============================================
+      
+      // Trades de l'utilisateur
+      match /trades/{tradeId} {
+        allow read, write: if isOwner(userId);
+      }
+      
+      // Positions de l'utilisateur
+      match /positions/{positionId} {
+        allow read, write: if isOwner(userId);
+      }
+      
+      // Wallets connectés
+      match /wallets/{walletId} {
+        allow read, write: if isOwner(userId);
+      }
+      
+      // Préférences utilisateur
+      match /preferences/{doc=**} {
+        allow read, write: if isOwner(userId);
+      }
+    }
+    
+    // ============================================
+    // COLLECTION: trades_global (future)
+    // ============================================
+    
+    match /trades_global/{tradeId} {
+      // Lecture seule pour analytics
+      allow read: if isAuthenticated();
+      // Écriture uniquement via Cloud Functions
+      allow write: if false;
+    }
+    
+    // ============================================
+    // COLLECTION: market_data (future)
+    // ============================================
+    
+    match /market_data/{coin} {
+      // Public en lecture (données de marché)
+      allow read: if true;
+      // Écriture uniquement via Cloud Functions/cron
+      allow write: if false;
+      
+      match /historical/{timestamp} {
+        allow read: if true;
+        allow write: if false;
+      }
+    }
+    
+    // ============================================
+    // COLLECTION: aggregations (future)
+    // ============================================
+    
+    match /aggregations/{doc=**} {
+      // Lecture pour utilisateurs authentifiés
+      allow read: if isAuthenticated();
+      // Écriture uniquement via Cloud Functions
+      allow write: if false;
+    }
+    
+    // ============================================
+    // COLLECTION: system (future)
+    // ============================================
+    
+    match /system/{doc=**} {
+      // Lecture pour utilisateurs authentifiés
+      allow read: if isAuthenticated();
+      // Écriture admin uniquement
+      allow write: if false;
+    }
+  }
+}

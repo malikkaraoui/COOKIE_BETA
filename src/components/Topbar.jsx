@@ -1,4 +1,5 @@
 import { useResizablePanel } from '../hooks/useResizablePanel'
+import LoginButton from '../auth/LoginButton'
 
 export default function Topbar() {
   const { size: height, isResizing, startResizing } = useResizablePanel({
@@ -11,7 +12,10 @@ export default function Topbar() {
   return (
     <>
       <header className="topbar" style={{ height }}>
-        TAP BAR
+        <div className="topbar-content">
+          <span>TAP BAR</span>
+          <LoginButton />
+        </div>
       </header>
 
       <div
