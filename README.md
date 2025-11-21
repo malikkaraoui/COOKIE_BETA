@@ -14,20 +14,24 @@
 ### 🔐 Authentification
 - **Google Sign-In** via Firebase Authentication
 - Gestion automatique des profils utilisateurs
-- Synchronisation en temps réel avec Firestore
-- Sécurité renforcée avec règles Firestore
+- Synchronisation en temps réel avec Realtime Database
+- Sécurité renforcée avec règles de sécurité
+- Création automatique du profil à la première connexion
 
 ### 📊 Trading & Données
 - **Intégration API Hyperliquid** pour les données crypto en temps réel
+- **Système de cache intelligent** : affichage instantané + fallback automatique
 - OrderBook BTC avec profondeur de marché
-- Tuile Bitcoin avec statistiques 24h
-- Architecture prête pour millions de données
+- Tuile Bitcoin avec statistiques 24h (prix + variation)
+- WebSocket pour prix live + HTTP pour données 24h
+- Résilience : fonctionne même si Hyperliquid est indisponible
 
 ### 👤 Profils Utilisateurs
-- Photo de profil synchro avec Google
-- Prénom/nom d'utilisateur
+- Photo de profil synchro avec Google (120px, centrée)
+- Prénom/nom d'utilisateur (importés automatiquement)
 - Date de naissance avec calcul automatique de l'âge
-- Page profil dédiée avec formulaire d'édition
+- Page profil simplifiée : affichage âge si date renseignée
+- Design épuré : nom sous la photo, pas d'inputs modifiables
 
 ### 🎨 Interface Moderne
 - **Design System cohérent** (palette violette/beige/dorée)
@@ -59,15 +63,16 @@ COOKIE/
 │   │
 │   ├── hooks/                   # Hooks personnalisés
 │   │   ├── useAuth.js           # Logique authentification
-│   │   ├── useUserProfile.js    # Gestion profils Firestore
-│   │   ├── useBtc24h.js         # Données BTC 24h
+│   │   ├── useUserProfile.js    # Gestion profils Realtime Database
+│   │   ├── useBtc24h.js         # Données BTC 24h (via API meta)
 │   │   └── useResizablePanel.js # Redimensionnement UI
 │   │
 │   ├── lib/                     # Services & utilitaires
-│   │   ├── firestore/
-│   │   │   └── userService.js   # CRUD profils utilisateurs
+│   │   ├── database/
+│   │   │   ├── userService.js   # CRUD profils utilisateurs
+│   │   │   └── priceCache.js    # Système de cache des prix
 │   │   ├── hlEndpoints.js       # Endpoints Hyperliquid
-│   │   └── infoClient.js        # Client API Hyperliquid
+│   │   └── priceCalculations.js # Logique métier: calculs de variations
 │   │
 │   ├── pages/                   # Pages routées
 │   │   ├── page1.jsx
@@ -81,9 +86,11 @@ COOKIE/
 │       └── firebase.js          # Config Firebase
 │
 ├── docs/
-│   └── FIRESTORE_ARCHITECTURE.md  # Doc architecture BDD
+│   ├── CACHE_ARCHITECTURE.md      # Architecture du cache des prix
+│   ├── PRICE_CALCULATIONS.md      # Logique métier des calculs
+│   └── FIRESTORE_ARCHITECTURE.md  # Doc architecture BDD (legacy)
 │
-├── firestore.rules              # Règles de sécurité Firestore
+├── database.rules.json          # Règles de sécurité Realtime Database
 └── .env                         # Variables d'environnement
 ```
 
@@ -97,15 +104,22 @@ COOKIE/
 
 #### 🔒 Sécurité
 - Variables d'environnement pour les clés API (`.env` non versionné)
-- Règles Firestore pour accès propriétaire uniquement
+- Règles Realtime Database pour accès contrôlé
 - Validation des données côté serveur
 - Firebase Auth UID comme clé primaire unique
 
-#### 📈 Scalabilité
-- Architecture Firestore optimisée pour millions de documents
-- Indexes composites pour requêtes complexes
-- Dénormalisation stratégique des données
-- Pas de requêtes imbriquées
+#### 📈 Scalabilité & Performance
+- **Système de cache intelligent** : Realtime Database comme fallback
+- **Affichage instantané** : < 50ms au chargement (cache local)
+- **Résilience** : Continue de fonctionner si Hyperliquid est down
+- **WebSocket** pour données live (push, pas de polling)
+- **Logique métier centralisée** : Réutilisable pour tous les tokens
+
+#### ⚡ Stratégie de Cache
+1. **Chargement** : Affiche immédiatement le cache Realtime Database
+2. **Live** : WebSocket + API HTTP pour données fraîches
+3. **Fallback** : Si Hyperliquid fail → Utilise le cache (< 1h)
+4. **Update** : Cache mis à jour automatiquement quand données live reçues
 
 ---
 
