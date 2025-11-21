@@ -1,12 +1,12 @@
 // Composant de connexion pour la Topbar
 // Affiche un bouton de connexion Google ou le profil de l'utilisateur
 import { useAuth } from '../hooks/useAuth'
-import { useUserProfile } from '../hooks/useUserProfile'
+import { useAvatar } from '../hooks/useAvatar'
 import './auth.css'
 
 export default function LoginButton() {
   const { user, loading, signInWithGoogle } = useAuth()
-  const { profile } = useUserProfile()
+  const { avatarURL, handleImageError, firstName } = useAvatar()
 
   const handleLogin = async () => {
     try {
@@ -21,16 +21,14 @@ export default function LoginButton() {
   }
 
   if (user) {
-    // Utiliser le prénom depuis le profil Firestore, sinon extraire depuis displayName
-    const firstName = profile?.firstName || user.displayName?.split(' ')[0] || 'Utilisateur'
-    
     return (
       <div className="user-profile">
         <span className="user-name">{firstName}</span>
         <img 
-          src={user.photoURL} 
+          src={avatarURL} 
           alt={firstName} 
           className="user-avatar"
+          onError={(e) => handleImageError(e, 40)}
         />
       </div>
     )

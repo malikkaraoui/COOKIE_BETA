@@ -3,12 +3,14 @@
 import { useState } from 'react'
 import { useAuth } from '../hooks/useAuth'
 import { useUserProfile } from '../hooks/useUserProfile'
+import { useAvatar } from '../hooks/useAvatar'
 import { calculateAge } from '../lib/database/userService'
 import './ProfilePage.css'
 
 export default function ProfilePage() {
   const { user } = useAuth()
-  const { profile, loading, updating, updateProfile } = useUserProfile()
+  const { profile, loading, updateProfile } = useUserProfile()
+  const { avatarURL, handleImageError } = useAvatar()
   
   const [birthDate, setBirthDate] = useState('')
   const [message, setMessage] = useState('')
@@ -61,9 +63,10 @@ export default function ProfilePage() {
         {/* Photo de profil + Nom/Prénom centrés */}
         <div className="profile-header">
           <img 
-            src={profile?.photoURL || user.photoURL} 
+            src={avatarURL} 
             alt={profile?.firstName || 'Profil'} 
             className="profile-avatar-large"
+            onError={(e) => handleImageError(e, 120)}
           />
           <h2 className="profile-name">{profile?.firstName} {profile?.lastName}</h2>
           
