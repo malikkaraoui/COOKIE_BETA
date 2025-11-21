@@ -10,6 +10,7 @@ import { createContext, useContext, useEffect, useRef, useState } from 'react'
 import { INFO_URL } from '../lib/hlEndpoints'
 import { calculatePriceChange } from '../lib/priceCalculations'
 import { setCachedPrice } from '../lib/database/priceCache'
+import { getTokenSymbols } from '../config/tokenList'
 
 const MarketDataContext = createContext(null)
 
@@ -68,39 +69,43 @@ export function MarketDataProvider({ children }) {
   // Polling assetCtxs toutes les 5s (prix + prevDayPx en une seule requête)
   useEffect(() => {
     async function fetchAssetCtxs() {
+      const symbols = getTokenSymbols() // ['BTC', 'ETH', ...]
+      
       try {
         const res = await fetch(INFO_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ type: 'assetCtxs', coins: ['BTC'] })
+          body: JSON.stringify({ type: 'assetCtxs', coins: symbols })
         })
         if (!res.ok) throw new Error('HTTP ' + res.status)
         const data = await res.json()
         
-        if (Array.isArray(data) && data[0]) {
-          const btcData = data[0]
-          const markPx = Number(btcData.markPx)
-          const prevDayPx = Number(btcData.prevDayPx)
-          
-          if (!isNaN(markPx) && !isNaN(prevDayPx) && prevDayPx > 0) {
-            console.log('✅ assetCtxs BTC:', { markPx, prevDayPx })
-            updateToken('BTC', { 
-              price: markPx, 
-              prevDayPx,
-              source: 'live',
-              status: 'live'
-            })
-          } else {
-            console.warn('⚠️ Données assetCtxs invalides:', btcData)
-            updateToken('BTC', { status: 'error', error: 'Données invalides' })
-          }
+        if (Array.isArray(data)) {
+          data.forEach((tokenData, index) => {
+            const symbol = symbols[index]
+            const markPx = Number(tokenData.markPx)
+            const prevDayPx = Number(tokenData.prevDayPx)
+            
+            if (!isNaN(markPx) && !isNaN(prevDayPx) && prevDayPx > 0) {
+              console.log(`✅ assetCtxs ${symbol}:`, { markPx, prevDayPx })
+              updateToken(symbol, { 
+                price: markPx, 
+                prevDayPx,
+                source: 'live',
+                status: 'live'
+              })
+            } else {
+              console.warn(`⚠️ Données assetCtxs invalides pour ${symbol}:`, tokenData)
+              updateToken(symbol, { status: 'error', error: 'Données invalides' })
+            }
+          })
         } else {
           console.warn('⚠️ Format assetCtxs inattendu:', data)
-          updateToken('BTC', { status: 'error', error: 'Format inattendu' })
+          symbols.forEach(sym => updateToken(sym, { status: 'error', error: 'Format inattendu' }))
         }
       } catch (e) {
         console.warn('❌ Erreur fetch assetCtxs:', e.message)
-        updateToken('BTC', { status: 'error', error: e.message })
+        symbols.forEach(sym => updateToken(sym, { status: 'error', error: e.message }))
       }
     }
 
@@ -134,7 +139,7 @@ export function MarketDataProvider({ children }) {
 
       // Écriture Realtime DB (lecture publique via règles Firebase)
       if (merged.source === 'live' && merged.price != null && merged.prevDayPx != null) {
-        console.log('🔥 Tentative écriture Firebase BTC:', {
+        console.log(`🔥 Tentative écriture Firebase ${symbol}:`, {
           price: merged.price,
           prevDayPx: merged.prevDayPx,
           deltaAbs: merged.deltaAbs,
@@ -146,9 +151,9 @@ export function MarketDataProvider({ children }) {
           deltaAbs: merged.deltaAbs,
           deltaPct: merged.deltaPct
         }).then(() => {
-          console.log('✅ Écriture Firebase réussie!')
+          console.log(`✅ Écriture Firebase ${symbol} réussie!`)
         }).catch((err) => {
-          console.error('❌ Échec écriture Firebase:', err.code, err.message)
+          console.error(`❌ Échec écriture Firebase ${symbol}:`, err.code, err.message)
         })
       }
       return { ...prev, [symbol]: merged }

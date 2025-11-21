@@ -1,9 +1,12 @@
+import { useTokenIcon } from '../hooks/useTokenIcon'
+
 function narrowSpaces(str){ return str.replace(/\u00A0/g, "\u202F"); }
 function fmtUSD(n){ return narrowSpaces(n.toLocaleString('fr-FR',{style:'currency',currency:'USD',maximumFractionDigits:2})); }
 function fmtSignedAbs(n,d=0){ const s=n>=0?'':'-'; const a=Math.abs(n);
   return `${s}${a.toLocaleString('fr-FR',{minimumFractionDigits:d,maximumFractionDigits:d})}`; }
 
 export default function BtcTile({ price, deltaAbs, deltaPct, status, source, error }) {
+  const { iconPath, handleError } = useTokenIcon('BTC')
   const hasDelta = deltaAbs!=null && deltaPct!=null;
   const color = !hasDelta ? '#94a3b8' : deltaAbs>=0 ? '#22c55e' : '#ef4444';
 
@@ -19,7 +22,7 @@ export default function BtcTile({ price, deltaAbs, deltaPct, status, source, err
 
   return (
     <div style={styles.card}>
-      <img src="/assets/btc.png" alt="BTC" width={36} height={36} style={{marginRight:10}} />
+      <img src={iconPath} alt="BTC" width={36} height={36} style={{marginRight:10}} onError={handleError} />
       <div style={{display:'flex',flexDirection:'column'}}>
         <div style={{...styles.delta, color, minHeight:16}}>
           {hasDelta ? `(${fmtSignedAbs(deltaAbs,0)} / ${fmtSignedAbs(deltaPct,2)}%)` : 'Variation...'}
