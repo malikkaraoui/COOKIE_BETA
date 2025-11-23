@@ -1,9 +1,9 @@
 // Composant générique TokenTile - affiche prix, variation et statut d'un token
 // Utilise le hook useToken pour récupérer les données
 // Supporte drag & drop pour sélection
-import { useState } from 'react'
 import { useToken } from '../hooks/useToken'
 import { useTokenIcon } from '../hooks/useTokenIcon'
+import { useDraggable } from '../hooks/useDraggable'
 
 function narrowSpaces(str) { return str.replace(/\u00A0/g, "\u202F") }
 function fmtUSD(n, decimals = null) {
@@ -26,7 +26,7 @@ function fmtSignedAbs(n, d = 0) {
 export default function TokenTile({ symbol, draggable = false }) {
   const token = useToken(symbol)
   const { iconPath, handleError } = useTokenIcon(symbol)
-  const [isDragging, setIsDragging] = useState(false)
+  const { isDragging, dragHandlers, dragProps } = useDraggable(draggable)
   
   const hasDelta = token.deltaAbs != null && token.deltaPct != null
   const color = !hasDelta ? '#94a3b8' : token.deltaAbs >= 0 ? '#22c55e' : '#ef4444'
@@ -41,30 +41,11 @@ export default function TokenTile({ symbol, draggable = false }) {
   // Source (hyperliquid vs cache navigateur)
   const sourceLabel = token.source === 'live' ? 'Hyperliquid' : 'Navigateur'
 
-  // Handlers drag & drop
-  const handleDragStart = (e) => {
-    if (!draggable) return
-    e.dataTransfer.effectAllowed = 'copy'
-    e.dataTransfer.setData('text/plain', symbol)
-    setIsDragging(true)
-  }
-
-  const handleDragEnd = () => {
-    setIsDragging(false)
-  }
-
   return (
     <div 
-      style={{
-        ...styles.card,
-        opacity: isDragging ? 0.5 : 1,
-        cursor: draggable ? 'grab' : 'default',
-        transform: isDragging ? 'scale(0.95)' : 'scale(1)',
-        transition: 'all 0.2s ease'
-      }}
-      draggable={draggable}
-      onDragStart={handleDragStart}
-      onDragEnd={handleDragEnd}
+      style={{ ...styles.card, ...dragProps }}
+      {...dragHandlers}
+      onDragStart={(e) => dragHandlers.onDragStart(e, symbol)}
     >
       <img 
         src={iconPath} 

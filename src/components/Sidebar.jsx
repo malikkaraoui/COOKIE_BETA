@@ -4,6 +4,7 @@ import { useResizablePanel } from '../hooks/useResizablePanel'
 import { useNavigation } from '../context/NavigationContext'
 import { useSelectedTokens } from '../context/SelectedTokensContext'
 import { useAuth } from '../hooks/useAuth'
+import { useDropZone } from '../hooks/useDropZone'
 import ProfileButton from '../auth/ProfileButton'
 import LogoutButton from '../auth/LogoutButton'
 
@@ -25,49 +26,30 @@ export default function Sidebar() {
   // Auth
   const { user } = useAuth()
 
-  // Gestion tokens sélectionnés
-  const { addToken, count, isFull } = useSelectedTokens()
-  const [isDropZoneActive, setIsDropZoneActive] = useState(false)
+  // Gestion tokens sélectionnés et drop zone
+  const { addToken, count } = useSelectedTokens()
   const [isShaking, setIsShaking] = useState(false)
+  
+  const { isActive: isDropZoneActive, dropHandlers, dropProps } = useDropZone(
+    (symbol) => {
+      // Vérifier si l'utilisateur est connecté
+      if (!user) {
+        alert('Veuillez vous connecter pour ajouter des tokens à votre cuisine')
+        return
+      }
+      addToken(symbol)
+    },
+    {
+      enabled: true,
+      onEnter: () => setIsShaking(true),
+      onLeave: () => setIsShaking(false)
+    }
+  )
 
   const links = [
     { to: '/page1', label: 'Marmiton Communautaire' },
     { to: '/page2', label: 'Ma cuisine', dropZone: true },
   ]
-
-  // Handlers drop zone
-  const handleDragOver = (e) => {
-    e.preventDefault()
-    e.dataTransfer.dropEffect = 'copy'
-    if (!isDropZoneActive) {
-      setIsDropZoneActive(true)
-      setIsShaking(true)
-    }
-  }
-
-  const handleDragLeave = () => {
-    setIsDropZoneActive(false)
-    setIsShaking(false)
-  }
-
-  const handleDrop = (e) => {
-    e.preventDefault()
-    
-    // Vérifier si l'utilisateur est connecté
-    if (!user) {
-      alert('Veuillez vous connecter pour ajouter des tokens à votre cuisine')
-      setIsDropZoneActive(false)
-      setIsShaking(false)
-      return
-    }
-
-    const symbol = e.dataTransfer.getData('text/plain')
-    if (symbol) {
-      addToken(symbol)
-    }
-    setIsDropZoneActive(false)
-    setIsShaking(false)
-  }
 
   return (
     <>
@@ -84,13 +66,9 @@ export default function Sidebar() {
                   position: 'relative',
                   padding: dropZone ? '8px' : '0',
                   borderRadius: dropZone ? '8px' : '0',
-                  background: isDropTarget ? 'rgba(34, 197, 94, 0.1)' : 'transparent',
-                  border: isDropTarget ? '2px dashed #22c55e' : '2px solid transparent',
-                  transition: 'all 0.2s ease'
+                  ...(dropZone ? dropProps : {})
                 }}
-                onDragOver={dropZone ? handleDragOver : undefined}
-                onDragLeave={dropZone ? handleDragLeave : undefined}
-                onDrop={dropZone ? handleDrop : undefined}
+                {...(dropZone ? dropHandlers : {})}
               >
                 <Link
                   to={to}
