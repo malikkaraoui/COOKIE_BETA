@@ -1,7 +1,8 @@
 // Composant générique TokenTile - affiche prix, variation et statut d'un token
-// Utilise le hook useToken pour récupérer les données
+// Utilise le hook useToken (Hyperliquid) ou useBinanceToken (Binance)
 // Supporte drag & drop pour sélection
 import { useToken } from '../hooks/useToken'
+import { useBinanceToken } from '../hooks/useBinanceToken'
 import { useTokenIcon } from '../hooks/useTokenIcon'
 import { useDraggable } from '../hooks/useDraggable'
 
@@ -23,8 +24,12 @@ function fmtSignedAbs(n, d = 0) {
   return `${s}${a.toLocaleString('fr-FR', { minimumFractionDigits: d, maximumFractionDigits: d })}`
 }
 
-export default function TokenTile({ symbol, draggable = false }) {
-  const token = useToken(symbol)
+export default function TokenTile({ symbol, source = 'hyperliquid', draggable = false }) {
+  // Utiliser le bon hook selon la source
+  const tokenHyper = useToken(symbol)
+  const tokenBinance = useBinanceToken(symbol)
+  const token = source === 'binance' ? tokenBinance : tokenHyper
+  
   const { iconPath, handleError } = useTokenIcon(symbol)
   const { isDragging, dragHandlers, dragProps } = useDraggable(draggable)
   
@@ -38,14 +43,16 @@ export default function TokenTile({ symbol, draggable = false }) {
   else if (token.status === 'cached') statusLabel = 'Cache'
   else if (token.status === 'loading') statusLabel = 'Initialisation'
 
-  // Source (hyperliquid vs cache navigateur)
-  const sourceLabel = token.source === 'live' ? 'Hyperliquid' : 'Navigateur'
+  // Source lisible
+  let sourceLabel = 'Navigateur'
+  if (token.source === 'live') sourceLabel = 'Hyperliquid'
+  else if (token.source === 'binance') sourceLabel = 'Binance'
 
   return (
     <div 
       style={{ ...styles.card, ...dragProps }}
       {...dragHandlers}
-      onDragStart={(e) => dragHandlers.onDragStart(e, symbol)}
+      onDragStart={(e) => dragHandlers.onDragStart(e, `${symbol}:${source}`)}
     >
       <img 
         src={iconPath} 

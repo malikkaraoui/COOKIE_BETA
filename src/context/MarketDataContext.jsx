@@ -9,8 +9,8 @@
 import { createContext, useContext, useEffect, useRef, useState } from 'react'
 import { INFO_URL } from '../lib/hlEndpoints'
 import { calculatePriceChange } from '../lib/priceCalculations'
-import { setCachedPrice } from '../lib/database/priceCache'
-import { getTokenSymbols } from '../config/tokenList'
+import { setCachedPriceHyper } from '../lib/database/priceCache'
+import { getHyperliquidTokenSymbols } from '../config/tokenList'
 
 const MarketDataContext = createContext(null)
 
@@ -69,7 +69,7 @@ export function MarketDataProvider({ children }) {
   // Polling assetCtxs toutes les 5s (prix + prevDayPx en une seule requête)
   useEffect(() => {
     async function fetchAssetCtxs() {
-      const symbols = getTokenSymbols() // ['BTC', 'ETH', ...]
+      const symbols = getHyperliquidTokenSymbols() // Uniquement tokens Hyperliquid
       
       try {
         const res = await fetch(INFO_URL, {
@@ -139,21 +139,21 @@ export function MarketDataProvider({ children }) {
 
       // Écriture Realtime DB (lecture publique via règles Firebase)
       if (merged.source === 'live' && merged.price != null && merged.prevDayPx != null) {
-        console.log(`🔥 Tentative écriture Firebase ${symbol}:`, {
+        console.log(`🔥 Tentative écriture Firebase Hyperliquid ${symbol}:`, {
           price: merged.price,
           prevDayPx: merged.prevDayPx,
           deltaAbs: merged.deltaAbs,
           deltaPct: merged.deltaPct
         })
-        setCachedPrice(symbol, {
+        setCachedPriceHyper(symbol, {
           price: merged.price,
           prevDayPx: merged.prevDayPx,
           deltaAbs: merged.deltaAbs,
           deltaPct: merged.deltaPct
         }).then(() => {
-          console.log(`✅ Écriture Firebase ${symbol} réussie!`)
+          console.log(`✅ Écriture Firebase Hyperliquid ${symbol} réussie!`)
         }).catch((err) => {
-          console.error(`❌ Échec écriture Firebase ${symbol}:`, err.code, err.message)
+          console.error(`❌ Échec écriture Firebase Hyperliquid ${symbol}:`, err.code, err.message)
         })
       }
       return { ...prev, [symbol]: merged }

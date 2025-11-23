@@ -47,8 +47,9 @@ export default function Sidebar() {
   )
 
   const links = [
-    { to: '/page1', label: 'Marmiton Communautaire' },
-    { to: '/page2', label: 'Ma cuisine', dropZone: true },
+    { to: '/MarmitonCommunautaire', label: 'Marmiton Communautaire' },
+    { to: '/MaCuisine', label: 'Ma cuisine', dropZone: true },
+    { to: '/BinanceToken', label: 'Binance liste token' },
   ]
 
   return (

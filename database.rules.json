@@ -11,6 +11,18 @@
         ".read": true,
         ".write": true
       }
+    },
+    "priceTokenHyper": {
+      "$coin": {
+        ".read": true,
+        ".write": true
+      }
+    },
+    "priceTokenBinance": {
+      "$coin": {
+        ".read": true,
+        ".write": true
+      }
     }
   }
 }

@@ -1,9 +1,25 @@
+import { useEffect } from 'react'
 import './App.css'
 import AppLayout from './components/AppLayout'
 import { MarketDataProvider } from './context/MarketDataContext'
 import { SelectedTokensProvider } from './context/SelectedTokensContext'
+import { initializePriceNodes } from './lib/database/initFirebase'
+import { cleanupOldPriceCache } from './lib/database/cleanupFirebase'
 
 export default function App() {
+  // Initialiser les nœuds Firebase au démarrage
+  useEffect(() => {
+    initializePriceNodes()
+    
+    // Nettoyer les anciennes entrées (une seule fois)
+    const hasCleanedUp = localStorage.getItem('firebase_cleanup_done')
+    if (!hasCleanedUp) {
+      cleanupOldPriceCache().then(() => {
+        localStorage.setItem('firebase_cleanup_done', 'true')
+      })
+    }
+  }, [])
+
   return (
     <MarketDataProvider>
       <SelectedTokensProvider>

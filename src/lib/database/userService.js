@@ -170,7 +170,10 @@ export async function saveSelectedTokens(uid, tokens) {
   if (!Array.isArray(tokens)) throw new Error('tokens doit être un tableau')
   
   const tokensRef = ref(db, `users/${uid}/selectedTokens`)
-  await set(tokensRef, tokens.slice(0, 4)) // Max 4 tokens
+  const cleanTokens = tokens.slice(0, 4).filter(Boolean) // Max 4 tokens, filtrer null
+  
+  // Si array vide, écrire null pour éviter objet {}
+  await set(tokensRef, cleanTokens.length > 0 ? cleanTokens : null)
 }
 
 /**
@@ -187,7 +190,16 @@ export async function getSelectedTokens(uid) {
   
   if (snapshot.exists()) {
     const data = snapshot.val()
-    return Array.isArray(data) ? data : []
+    
+    // Firebase peut retourner un objet {0: "BTC", 1: "ETH"} au lieu d'un array
+    if (Array.isArray(data)) {
+      return data.filter(Boolean) // Filtrer les valeurs null/undefined
+    }
+    
+    // Convertir objet en array si nécessaire
+    if (typeof data === 'object' && data !== null) {
+      return Object.values(data).filter(Boolean)
+    }
   }
   
   return []

@@ -34,11 +34,17 @@ export default function Page2() {
         </div>
       ) : (
         <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
-          {selectedTokens.map(symbol => (
-            <div key={symbol} style={{ position: 'relative' }}>
-              <TokenTile symbol={symbol} />
+          {selectedTokens.map(symbolWithSource => {
+            // Extraire symbol et source (ex: 'BNB:binance' -> {symbol: 'BNB', source: 'binance'})
+            const [symbol, source] = symbolWithSource.includes(':') 
+              ? symbolWithSource.split(':') 
+              : [symbolWithSource, 'hyperliquid']
+            
+            return (
+            <div key={symbolWithSource} style={{ position: 'relative' }}>
+              <TokenTile symbol={symbol} source={source} />
               <button
-                onClick={() => removeToken(symbol)}
+                onClick={() => removeToken(symbolWithSource)}
                 style={{
                   position: 'absolute',
                   top: -8,
@@ -62,7 +68,8 @@ export default function Page2() {
                 ×
               </button>
             </div>
-          ))}
+            )
+          })}
         </div>
       )}
     </div>

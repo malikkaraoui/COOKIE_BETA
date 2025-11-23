@@ -4,6 +4,7 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { useAuth } from '../hooks/useAuth'
 import { saveSelectedTokens, getSelectedTokens } from '../lib/database/userService'
+import { migrateSelectedTokens } from '../lib/database/migrateSelectedTokens'
 
 const SelectedTokensContext = createContext(null)
 
@@ -22,6 +23,9 @@ export function SelectedTokensProvider({ children }) {
       return
     }
 
+    // Migration one-time (convertir objet Firebase en array)
+    migrateSelectedTokens(user.uid)
+
     // Utilisateur connecté : charger depuis Firebase
     getSelectedTokens(user.uid)
       .then(tokens => {
@@ -38,40 +42,44 @@ export function SelectedTokensProvider({ children }) {
 
   // Sauvegarder vers Firebase ET localStorage à chaque modification
   useEffect(() => {
-    if (!user?.uid || userTokens.length === 0) return
+    if (!user?.uid) return
 
     // localStorage (synchrone)
     try {
-      localStorage.setItem(LS_KEY, JSON.stringify(userTokens))
+      if (userTokens.length > 0) {
+        localStorage.setItem(LS_KEY, JSON.stringify(userTokens))
+      } else {
+        localStorage.removeItem(LS_KEY)
+      }
     } catch (e) {
       console.warn('Erreur écriture selectedTokens localStorage:', e)
     }
 
-    // Firebase (asynchrone)
+    // Firebase (asynchrone) - TOUJOURS sauvegarder, même si vide
     saveSelectedTokens(user.uid, userTokens)
       .catch(err => console.error('Erreur sauvegarde tokens Firebase:', err))
   }, [userTokens, user?.uid])
 
   // Ajouter un token
-  const addToken = (symbol) => {
+  const addToken = (symbolWithSource) => {
     if (!user) return // Sécurité : pas d'ajout si non connecté
     
     setUserTokens(prev => {
-      // Éviter doublons
-      if (prev.includes(symbol)) return prev
+      // Éviter doublons (même symbol:source)
+      if (prev.includes(symbolWithSource)) return prev
       // Max 4 tokens
       if (prev.length >= MAX_TOKENS) {
         console.warn(`Maximum ${MAX_TOKENS} tokens`)
         return prev
       }
-      return [...prev, symbol]
+      return [...prev, symbolWithSource]
     })
   }
 
   // Retirer un token
-  const removeToken = (symbol) => {
+  const removeToken = (symbolWithSource) => {
     if (!user) return // Sécurité : pas de retrait si non connecté
-    setUserTokens(prev => prev.filter(s => s !== symbol))
+    setUserTokens(prev => prev.filter(s => s !== symbolWithSource))
   }
 
   // Vider la sélection

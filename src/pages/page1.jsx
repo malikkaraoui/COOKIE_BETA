@@ -8,16 +8,16 @@ export default function Page1() {
         Glissez jusqu'à 4 tokens vers "Ma cuisine" pour les suivre
       </p>
       <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
-        <TokenTile symbol="BTC" draggable />
-        <TokenTile symbol="ETH" draggable />
-        <TokenTile symbol="SOL" draggable />
-        <TokenTile symbol="BNB" draggable />
-        <TokenTile symbol="MATIC" draggable />
-        <TokenTile symbol="kPEPE" draggable />
-        <TokenTile symbol="AVAX" draggable />
-        <TokenTile symbol="ATOM" draggable />
-        <TokenTile symbol="APT" draggable />
-        <TokenTile symbol="ARB" draggable />
+        <TokenTile symbol="BTC" source="hyperliquid" draggable />
+        <TokenTile symbol="ETH" source="hyperliquid" draggable />
+        <TokenTile symbol="SOL" source="hyperliquid" draggable />
+        <TokenTile symbol="BNB" source="hyperliquid" draggable />
+        <TokenTile symbol="MATIC" source="hyperliquid" draggable />
+        <TokenTile symbol="kPEPE" source="hyperliquid" draggable />
+        <TokenTile symbol="AVAX" source="hyperliquid" draggable />
+        <TokenTile symbol="ATOM" source="hyperliquid" draggable />
+        <TokenTile symbol="APT" source="hyperliquid" draggable />
+        <TokenTile symbol="ARB" source="hyperliquid" draggable />
       </div>
     </div>
   )
