@@ -13,7 +13,7 @@ export default function AppLayout({ children, activeTab, onTabChange, isDarkMode
       />
       <Topbar />
 
-      <main className="pl-64 pt-20 min-h-screen">
+      <main className="pl-64 pt-32 min-h-screen">
         <div className="p-8 max-w-7xl mx-auto">
           {children}
         </div>
