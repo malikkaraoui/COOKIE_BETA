@@ -1,21 +1,77 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
-/* Occupe toute la hauteur de la fenêtre */
-/* Enlève la marge par défaut du body */
-
-html,
-body,
-#root {
-  height: 100%;
-  margin: 0;
+@theme {
+  --color-cookie-bg: #FFF8E7;
+  --color-cookie-orange: #FFA500;
+  --color-cookie-orange-soft: #FFDAB9;
+  --color-cookie-green: #10B981;
+  --color-cookie-text: #1F2937;
+  --color-cookie-card: #FFFFFF;
 }
 
-/* Animation shake pour drop zone */
-@keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); }
-  20%, 40%, 60%, 80% { transform: translateX(4px); }
-}
+@layer base {
+  :root.dark {
+    --color-cookie-bg: #1F2937;
+    /* Gris ardoise foncé */
+    --color-cookie-orange: #FFA500;
+    /* Orange reste vif */
+    --color-cookie-orange-soft: #374151;
+    /* Gris plus clair pour les fonds secondaires */
+    --color-cookie-green: #34D399;
+    /* Vert un peu plus lumineux */
+    --color-cookie-text: #F3F4F6;
+    /* Blanc cassé */
+    --color-cookie-card: #273548;
+    /* Gris bleuté profond pour les cartes */
+  }
 
+  :root {
+    font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+    font-weight: 400;
+
+    color-scheme: light;
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    margin: 0;
+    background-color: var(--color-cookie-bg);
+    color: var(--color-cookie-text);
+    font-family: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    color: var(--color-cookie-text);
+  }
+
+  /* Animation shake pour drop zone */
+  @keyframes shake {
+
+    0%,
+    100% {
+      transform: translateX(0);
+    }
+
+    10%,
+    30%,
+    50%,
+    70%,
+    90% {
+      transform: translateX(-4px);
+    }
+
+    20%,
+    40%,
+    60%,
+    80% {}
+  }
+}

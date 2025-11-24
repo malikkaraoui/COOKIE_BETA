@@ -1,34 +1,51 @@
 import { useEffect } from 'react'
-import './App.css'
-import AppLayout from './components/AppLayout'
-import { MarketDataProvider } from './context/MarketDataContext'
-import { SelectedTokensProvider } from './context/SelectedTokensContext'
-import { initializePriceNodes } from './lib/database/initFirebase'
-import { cleanupOldPriceCache } from './lib/database/cleanupFirebase'
-import { useBinancePrices } from './hooks/useBinancePrices'
+import React, { useState } from 'react';
+import './App.css';
+import AppLayout from './components/AppLayout';
+import Marmite from './pages/Marmite';
+import EpicerieFine from './pages/EpicerieFine';
+import RecettesPopulaires from './pages/RecettesPopulaires';
+import MesRecettes from './pages/MesRecettes';
 
-export default function App() {
-  // Polling automatique des prix Binance → Firebase
-  useBinancePrices()
+function App() {
+  const [activeTab, setActiveTab] = useState('marmite');
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
-  // Initialiser les nœuds Firebase au démarrage
   useEffect(() => {
-    initializePriceNodes()
-    
-    // Nettoyer les anciennes entrées (une seule fois)
-    const hasCleanedUp = localStorage.getItem('firebase_cleanup_done')
-    if (!hasCleanedUp) {
-      cleanupOldPriceCache().then(() => {
-        localStorage.setItem('firebase_cleanup_done', 'true')
-      })
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
     }
-  }, [])
+  }, [isDarkMode]);
+
+  const toggleTheme = () => setIsDarkMode(!isDarkMode);
+
+  const renderContent = () => {
+    switch (activeTab) {
+      case 'marmite':
+        return <Marmite />;
+      case 'epicerie':
+        return <EpicerieFine />;
+      case 'recettes':
+        return <RecettesPopulaires />;
+      case 'mes-recettes':
+        return <MesRecettes />;
+      default:
+        return <Marmite />;
+    }
+  };
 
   return (
-    <MarketDataProvider>
-      <SelectedTokensProvider>
-        <AppLayout />
-      </SelectedTokensProvider>
-    </MarketDataProvider>
-  )
+    <AppLayout
+      activeTab={activeTab}
+      onTabChange={setActiveTab}
+      isDarkMode={isDarkMode}
+      toggleTheme={toggleTheme}
+    >
+      {renderContent()}
+    </AppLayout>
+  );
 }
+
+export default App;

@@ -1,126 +1,22 @@
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+/* 
+  Styles spécifiques à l'application.
+  La majorité du styling est géré par Tailwind CSS dans index.css et les classes utilitaires.
+*/
+
+.animate-bounce-slow {
+  animation: bounce 3s infinite;
 }
 
-html,
-body,
-#root {
-  height: 100%;
-}
+@keyframes bounce {
 
-body {
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-}
+  0%,
+  100% {
+    transform: translateY(-5%);
+    animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+  }
 
-.app {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
-/* TAP BAR */
-.topbar {
-  background: #6f5a72;
-  color: #ffffff;
-  display: flex;
-  align-items: center;
-  padding: 0 24px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-}
-
-.topbar-content {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-/* poignée horizontale sous la topbar */
-.topbar-resizer {
-  height: 6px;
-  cursor: row-resize;
-  background: rgba(0, 0, 0, 0.05);
-  transition: background 0.15s ease;
-}
-
-.topbar-resizer:hover,
-.topbar-resizer.is-resizing {
-  background: rgba(0, 0, 0, 0.18);
-}
-
-/* zone NAV + PAGE */
-.layout {
-  flex: 1;
-  display: flex;
-  min-height: 0;
-}
-
-/* NAVIGATION */
-.sidebar {
-  background: #e7cfcf;
-  padding: 24px;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  flex-shrink: 0; /* Empêche la compression */
-}
-
-/* conteneur des liens */
-.sidebar-inner {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  width: 100%;
-  height: 100%;
-  overflow-y: auto;
-  min-height: 0; /* Permet le scroll */
-}
-
-/* liens de navigation */
-.nav-link {
-  display: block;
-  padding: 8px 12px;
-  border-radius: 6px;
-  text-decoration: none;
-  color: #333;
-  font-size: 14px;
-  transition: background 0.15s ease, color 0.15s ease;
-}
-
-.nav-link:hover {
-  background: rgba(0, 0, 0, 0.06);
-}
-
-.nav-link.active {
-  background: #6f5a72;
-  color: #fff;
-  font-weight: 600;
-}
-
-/* poignée verticale entre nav et page */
-.sidebar-resizer {
-  width: 6px;
-  cursor: col-resize;
-  background: rgba(0, 0, 0, 0.05);
-  transition: background 0.15s ease;
-  flex-shrink: 0;
-  z-index: 10;
-}
-
-.sidebar-resizer:hover,
-.sidebar-resizer.is-resizing {
-  background: rgba(0, 0, 0, 0.18);
-}
-
-/* PAGE (zone droite) */
-.page {
-  flex: 1;
-  background: #e4b85a;
-  padding: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  50% {
+    transform: translateY(0);
+    animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+  }
 }

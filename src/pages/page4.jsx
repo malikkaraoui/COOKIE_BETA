@@ -108,7 +108,7 @@ export default function Page4() {
       </h1>
 
       <p style={{ color: '#888', marginBottom: '40px', fontSize: '16px' }}>
-        Glissez jusqu'à 4 tokens vers "Ma cuisine" pour les suivre
+        Glissez jusqu'à 4 Inggrédients vers "Ma cuisine" à cuisiner !! 👨🏼‍🍳
       </p>
 
       {/* Grid de tokens */}

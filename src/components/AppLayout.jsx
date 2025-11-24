@@ -1,30 +1,23 @@
-import { Routes, Route, Navigate } from 'react-router-dom'
-import Topbar from './Topbar'
-import Sidebar from './Sidebar'
-import Page1 from '../pages/page1'
-import Page2 from '../pages/page2'
-import Page4 from '../pages/page4'
-import ProfilePage from '../pages/ProfilePage'
+import React from 'react';
+import Sidebar from './Sidebar';
+import Topbar from './Topbar';
 
-export default function AppLayout() {
+export default function AppLayout({ children, activeTab, onTabChange, isDarkMode, toggleTheme }) {
   return (
-    <div className="app">
+    <div className="min-h-screen bg-cookie-bg font-sans text-cookie-text transition-colors duration-300">
+      <Sidebar
+        activeTab={activeTab}
+        onTabChange={onTabChange}
+        isDarkMode={isDarkMode}
+        toggleTheme={toggleTheme}
+      />
       <Topbar />
 
-      <div className="layout">
-        <Sidebar />
-
-        <main className="page">
-          <Routes>
-            {/* redirection par défaut vers Marmiton Communautaire */}
-            <Route path="/" element={<Navigate to="/MarmitonCommunautaire" replace />} />
-            <Route path="/MarmitonCommunautaire" element={<Page1 />} />
-            <Route path="/MaCuisine" element={<Page2 />} />
-            <Route path="/BinanceToken" element={<Page4 />} />
-            <Route path="/profile" element={<ProfilePage />} />
-          </Routes>
-        </main>
-      </div>
+      <main className="pl-64 pt-20 min-h-screen">
+        <div className="p-8 max-w-7xl mx-auto">
+          {children}
+        </div>
+      </main>
     </div>
-  )
+  );
 }
